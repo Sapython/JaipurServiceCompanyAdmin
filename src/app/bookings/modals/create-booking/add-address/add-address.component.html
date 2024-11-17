@@ -1,0 +1,105 @@
+<div
+  mat-dialog-content
+  id="addAddressModal"
+  tabindex="-2"
+  role="dialog"
+  aria-labelledby="addAddressModalLabel"
+>
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header flex-between">
+        <div class="header-title">
+          <span class="modal-title" id="availableAgentsModalLabel">
+            Add New Address
+          </span>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="18"
+            height="22"
+            viewBox="0 0 18 22"
+            fill="none"
+            style="margin-left: 10px"
+          >
+            <path
+              d="M9 18.8995L13.9497 13.9497C16.6834 11.2161 16.6834 6.78392 13.9497 4.05025C11.2161 1.31658 6.78392 1.31658 4.05025 4.05025C1.31658 6.78392 1.31658 11.2161 4.05025 13.9497L9 18.8995ZM9 21.7279L2.63604 15.364C-0.87868 11.8492 -0.87868 6.15076 2.63604 2.63604C6.15076 -0.87868 11.8492 -0.87868 15.364 2.63604C18.8787 6.15076 18.8787 11.8492 15.364 15.364L9 21.7279ZM8 8V5H10V8H13V10H10V13H8V10H5V8H8Z"
+              fill="#145889"
+            />
+          </svg>
+        </div>
+        <div class="header-btn">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="36"
+            height="36"
+            viewBox="0 0 36 36"
+            fill="none"
+            (click)="onNoClick()"
+          >
+            <path
+              d="M18.001 15.8797L25.4256 8.45508L27.5469 10.5764L20.1223 18.001L27.5469 25.4256L25.4256 27.5469L18.001 20.1223L10.5764 27.5469L8.45508 25.4256L15.8797 18.001L8.45508 10.5764L10.5764 8.45508L18.001 15.8797Z"
+              fill="#E82C2C"
+            />
+          </svg>
+        </div>
+      </div>
+      <form [formGroup]="addAddressForm" (ngSubmit)="addAddressForm.valid && handleSubmit()">
+        <div class="modal-body">
+          <div class="address-container">
+            <div style="grid-column: 1 / span 2" class="input-box">
+              <input type="text" formControlName="name" placeholder="Name" />
+            </div>
+            <div class="input-box">
+              <input type="text" formControlName="state" placeholder="State" />
+            </div>
+            <div class="input-box">
+              <input type="text" formControlName="city" placeholder="City" />
+            </div>
+            <div style="grid-column: 1 / span 2" class="input-box">
+              <div class="searchbox d-flex w-100">
+                <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="28"
+                height="28"
+                viewBox="0 0 28 28"
+                fill="none"
+                >
+                <path
+                    d="M22.0412 20.1561L27.7514 25.8663L25.8658 27.7519L20.1556 22.0417C18.1024 23.6843 15.4985 24.667 12.6665 24.667C6.0425 24.667 0.666504 19.291 0.666504 12.667C0.666504 6.04299 6.0425 0.666992 12.6665 0.666992C19.2905 0.666992 24.6665 6.04299 24.6665 12.667C24.6665 15.499 23.6838 18.1029 22.0412 20.1561ZM19.3661 19.1667C20.9965 17.4865 21.9998 15.1945 21.9998 12.667C21.9998 7.51032 17.8232 3.33366 12.6665 3.33366C7.50984 3.33366 3.33317 7.51032 3.33317 12.667C3.33317 17.8237 7.50984 22.0003 12.6665 22.0003C15.194 22.0003 17.486 20.997 19.1662 19.3666L19.3661 19.1667Z"
+                    fill="#145889"
+                />
+                </svg>
+                <input type="text"
+                        placeholder="Search areas by name"
+                        aria-label=""
+                        matInput
+                        formControlName="area"
+                        [matAutocomplete]="auto"
+                        class="search-input"
+                        (input)="getAreaOnSearch($event)">
+                <!-- <mat-autocomplete #auto="matAutocomplete" (optionSelected)='onAreaDropdownSelect($event)'>
+                    <mat-option *ngFor="let option of areaOptions" value="{{option.formatted_address}}|{{option.geometry.location.lat}},{{option.geometry.location.lng}}">{{option.formatted_address}}</mat-option>
+                </mat-autocomplete> -->
+    
+                <mat-autocomplete #auto="matAutocomplete" (optionSelected)='onAreaDropdownSelect($event)'>
+                    <mat-option *ngFor="let option of areaOptions" value="{{option.formatted_address}}|{{option.place_id}}">{{option.formatted_address}}</mat-option>
+                </mat-autocomplete>
+                
+              </div>
+            </div>
+            <div style="grid-column: 1 / span 2" class="input-box">
+              <input type="text" formControlName="address1" placeholder="House/Flat/Block/Building" />
+            </div>
+            <div class="input-box">
+              <input type="number" formControlName="pincode" placeholder="Pincode" />
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn1" type="submit">Submit</button>
+          <button (click)="onNoClick()" class="btn2">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

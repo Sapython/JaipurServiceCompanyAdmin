@@ -1,0 +1,519 @@
+<div class="wrapper">
+  <div class="header">
+      <div>
+        <span class="blue-bold-text">{{serviceCatalogueForm.controls['name'].value}}</span>
+        <!-- <span class="mx-3">Active On Areas</span>
+        <span class="color-round">{{activeOnAreas}}</span> -->
+      </div>
+      <div>
+        <mat-icon (click)="closeDialog()">close</mat-icon>
+      </div>
+  </div>
+  <hr>
+  <div>
+    <form
+      [formGroup]="serviceCatalogueForm"
+      class="catalogue-name-form d-flex"
+      (ngSubmit)="serviceCatalogueForm.valid && handleServiceCatalogueSubmit()"
+    >
+      <div [style.width]="'80%'">
+        <mat-form-field appearance="outline" class="fullWidth py-1">
+          <mat-label>Service Catalogue Name</mat-label>
+          <input matInput type="text" formControlName="name" required />
+        </mat-form-field>
+        <p class="error" *ngIf="!serviceCatalogueForm.value.id">Please create Service Catalogue to continue adding Categories</p>
+      </div>
+      <button type="submit">{{!serviceCatalogueForm.value.id ? 'Create Catalogue' : 'Update Catalogue'}}</button>
+    </form>
+  </div>
+
+  <mat-tab-group *ngIf="serviceCatalogueForm.value.id">
+    <mat-tab label="Services">
+      <div class="services">
+        <div class="categories">
+          <div class="heading">
+            Main Category
+            <button class="iconButton" (click)="addCategory()">
+              <mat-icon>add</mat-icon>
+            </button>
+          </div>
+          <div class="list">
+            <ng-container *ngFor="let category of categories">
+              <span>
+                <mat-icon
+                  (click)="switchVisibility(false, category)"
+                  *ngIf="category.enabled"
+                  >visibility</mat-icon
+                >
+                <mat-icon
+                  (click)="switchVisibility(true, category)"
+                  *ngIf="!category.enabled"
+                  >visibility_off</mat-icon
+                >
+                <p>{{ category.name }}</p>
+                <button mat-icon-button (click)="editCategory(category)">
+                  <mat-icon>edit</mat-icon>
+                </button>
+              </span>
+              <div class="category" (click)="addSubCategory(category)">
+                Add New Sub-Category
+                <mat-icon>add</mat-icon>
+              </div>
+              <div
+                class="category"
+                (click)="
+                  currentSubCategory = subCategory; currentMainCategory = category; unsavedChanges = false;
+                "
+                [ngClass]="{ active: subCategory.id == currentSubCategory?.id }"
+                *ngFor="let subCategory of category.subCategories"
+              >
+                <mat-icon
+                  (click)="switchVisibility(false, category, subCategory)"
+                  *ngIf="subCategory.enabled"
+                  >visibility</mat-icon
+                >
+                <mat-icon
+                  (click)="switchVisibility(true, category, subCategory)"
+                  *ngIf="!subCategory.enabled"
+                  >visibility_off</mat-icon
+                >
+                <p>{{ subCategory.name }}</p>
+                <div class="actions">
+                  <button class="iconButton" (click)="editSubCategory(subCategory, category)">
+                    <mat-icon>edit</mat-icon>
+                  </button>
+                </div>
+              </div>
+            </ng-container>
+          </div>
+        </div>
+        <div class="services">
+          <div class="heading">Services</div>
+          <div class="list">
+            <div class="service" (click)="selectService('add')" *ngIf="currentSubCategory">
+              Add New Service
+              <mat-icon>add</mat-icon>
+            </div>
+            <div
+              class="service"
+              [ngClass]="{ active: service.id == currentService?.id }"
+              (click)="selectService('edit', service)"
+              *ngFor="let service of currentSubCategory?.services"
+            >
+              <p>{{ service.name }}</p>
+              <mat-icon>arrow_forward_ios</mat-icon>
+            </div>
+          </div>
+        </div>
+        <div class="serviceDetail" [ngClass]="{'viewOnly':operation=='view'}">
+          <form
+            [formGroup]="serviceForm"
+            (ngSubmit)="handleSubmit()"
+            *ngIf="this.operation"
+          >
+            <div class="body">
+              <mat-tab-group (selectedTabChange)="onTabChanged($event);">
+                <mat-tab label="Description">
+                  <div class="padding">
+                    <mat-form-field appearance="outline">
+                      <mat-label>Service Name</mat-label>
+                      <input matInput type="text" formControlName="name" />
+                    </mat-form-field>
+                    <div id="blogEditor" [ngClass]="{'disabled': serviceForm.disabled}"></div>
+                    <div class="grid">
+                      <mat-form-field appearance="outline" class="fullWidth">
+                        <mat-label>HSN Code</mat-label>
+                        <input matInput type="text" formControlName="hsnCode" />
+                      </mat-form-field>
+                      <mat-slide-toggle formControlName="allowReviews"
+                        >Allow Reviews</mat-slide-toggle
+                      >
+                      <mat-form-field appearance="outline">
+                        <mat-label>Review Editable Period In Minutes</mat-label>
+                        <input
+                          matInput
+                          type="number"
+                          formControlName="reviewEditable"
+                        />
+                      </mat-form-field>
+                      <mat-form-field [style.width.px]=100 appearance="outline">
+                        <mat-label>Color</mat-label>
+                        <input matInput type="color" formControlName="color" />
+                      </mat-form-field>
+                      <mat-form-field class="fullWidth" appearance="outline">
+                        <mat-label>Add Tags</mat-label>
+                        <mat-chip-grid #chipGrid aria-label="Tag selection" formControlName="tags">
+                          <ng-container *ngFor="let tag of serviceTags; track tag">
+                            <mat-chip-row (removed)="removeTag(tag)">
+                              {{tag}}
+                              <button matChipRemove [attr.aria-label]="'remove ' + tag">
+                                <mat-icon>cancel</mat-icon>
+                              </button>
+                            </mat-chip-row>
+                          </ng-container>
+                        </mat-chip-grid>
+                        <input placeholder="New Tag..." #tagInput [formControl]="tagsCtrl"
+                          [matChipInputFor]="chipGrid" [matAutocomplete]="auto"
+                          [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+                          (matChipInputTokenEnd)="addTag($event)" matInput/>
+                        <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selectedTag($event)">
+                          <ng-container *ngFor="let tag of filteredTags | async; track tag">
+                            <mat-option [value]="tag">{{tag}}</mat-option>
+                          </ng-container>
+                        </mat-autocomplete>
+                      </mat-form-field>
+                    </div>
+                  </div>
+                </mat-tab>
+                <mat-tab label="Assets">
+                  <div class="padding">
+                    <div class="assets section">
+                      <div class="dropArea" (click)="operation=='view' ? {} : selectVideo()">
+                        <p *ngIf="!this.serviceForm.value.video">
+                          <i class="ri-image-line"></i> Upload intro view (.mp4)
+                        </p>
+                        <video
+                          controls
+                          *ngIf="this.serviceForm.value.video"
+                          [src]="this.serviceForm.value.video"
+                        ></video>
+                      </div>
+                      <div class="dropArea image" (click)="operation=='view' ? {} : selectImage()">
+                        <p *ngIf="!this.serviceForm.value.image.length">
+                          <i class="ri-image-line"></i> Upload Images (jpg,png)
+                        </p>
+                        <ng-container *ngIf="this.serviceForm.value.image.length">
+                          <img
+                            *ngFor="let item of this.serviceForm.value.image"
+                            [src]="item"
+                            alt=""
+                          />
+                        </ng-container>
+                      </div>
+                    </div>
+                    <div class="subHeading">
+                      <h5>Suggestive Services</h5>
+                    </div>
+                    <div class="coupons section">
+                      <div class="searchBar" *ngIf="operation!='view'">
+                        <i class="ri-search-line"></i>
+                        <input
+                          type="search"
+                          placeholder="Search Services"
+                          [matAutocomplete]="serviceAutoComplete"
+                          (input)="serviceSearchSubject.next(serviceInput.value)"
+                          #serviceInput
+                        />
+                        <mat-autocomplete
+                          autoActiveFirstOption
+                          #serviceAutoComplete="matAutocomplete"
+                          (optionSelected)="haveSelectedService($event)"
+                          [displayWith]="returnBlank"
+                        >
+                          <mat-option
+                            *ngFor="let option of filteredServices"
+                            [value]="option"
+                          >
+                            {{ option.name }}
+                          </mat-option>
+                        </mat-autocomplete>
+                      </div>
+                      <table>
+                        <thead>
+                          <tr>
+                            <th>Name</th>
+                            <th>Category</th>
+                            <th>Sub-Category</th>
+                            <th>Price</th>
+                            <th *ngIf="operation!='view'">Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr
+                            *ngFor="
+                              let service of this.currentService?.services || [];
+                              let i = index
+                            "
+                          >
+                            <td>{{ service.name }}</td>
+                            <td>{{ service.category.name }}</td>
+                            <td>{{ service.subCategory.name }}</td>
+                            <td>{{ service.price }}</td>
+                            <td *ngIf="operation!='view'">
+                              <button
+                                type="button"
+                                (click)="deleteSuggestiveService(i, 'CS')"
+                                mat-icon-button
+                                color="warn"
+                              >
+                                <mat-icon>delete</mat-icon>
+                              </button>
+                            </td>
+                          </tr>
+                          <tr
+                            *ngFor="
+                              let service of selectedServices;
+                              let i = index
+                            "
+                          >
+                            <td>{{ service.name }}</td>
+                            <td>{{ service.category.name }}</td>
+                            <td>{{ service.subCategory.name }}</td>
+                            <td>{{ service.price }}</td>
+                            <td *ngIf="operation!='view'">
+                              <button
+                                type="button"
+                                (click)="deleteSuggestiveService(i, 'SS')"
+                                mat-icon-button
+                                color="warn"
+                              >
+                                <mat-icon>delete</mat-icon>
+                              </button>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </mat-tab>
+                <mat-tab label="Pricing">
+                  <div class="padding">
+                    <div class="subHeading">
+                      <h5>Taxes</h5>
+                    </div>
+                    <div class="taxes section">
+                      <mat-radio-group formControlName="taxType">
+                        <mat-radio-button value="inclusive"> Inclusive </mat-radio-button>
+                        <mat-radio-button value="exclusive"> Exclusive </mat-radio-button>
+                      </mat-radio-group>
+                      <!-- <mat-checkbox *ngFor="let tax of taxes">{{tax.name}} - {{tax.rate}}</mat-checkbox> -->
+                      <mat-form-field appearance="outline">
+                        <mat-select multiple formControlName="taxes">
+                          <mat-option *ngFor="let tax of taxes" [value]="tax.id">{{
+                            tax.name
+                          }}</mat-option>
+                        </mat-select>
+                      </mat-form-field>
+                    </div>
+                    <div class="subHeading">
+                      <h5>Coupons</h5>
+                    </div>
+                    <div class="coupons section">
+                      <div class="searchBar" *ngIf="operation!='view'">
+                        <i class="ri-search-line"></i>
+                        <input
+                          type="search"
+                          [matAutocomplete]="discountAutoComplete"
+                          placeholder="Search coupons"
+                          (input)="
+                            discountSearchSubject.next(discountInput.value)
+                          "
+                          #discountInput
+                        />
+                        <mat-autocomplete
+                          autoActiveFirstOption
+                          #discountAutoComplete="matAutocomplete"
+                          (optionSelected)="haveSelectedCoupon($event)"
+                          [displayWith]="returnBlank"
+                        >
+                          <mat-option
+                            *ngFor="let option of filteredDiscounts"
+                            [value]="option"
+                          >
+                            {{ option.name }}
+                          </mat-option>
+                        </mat-autocomplete>
+                      </div>
+                      <table>
+                        <thead>
+                          <tr>
+                            <th>Name</th>
+                            <th>Code</th>
+                            <th>Value</th>
+                            <th class="text-center">Type</th>
+                            <th *ngIf="operation!='view'">Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr
+                            *ngFor="
+                              let discount of this.currentService?.discounts || [];
+                              let i = index
+                            "
+                          >
+                            <ng-container *ngIf="discount">
+                              <td>{{ discount.name }}</td>
+                              <td>{{ discount.code }}</td>
+                              <td>{{ discount.value }}</td>
+                              <td class="badges">
+                                <span [class]="discount.type">
+                                  {{ discount.type }}
+                                </span>
+                              </td>
+                              <td *ngIf="operation!='view'">
+                                <button
+                                  type="button"
+                                  mat-icon-button
+                                  color="warn"
+                                  (click)="deleteDiscounts(i, 'CS')"
+                                >
+                                  <mat-icon>delete</mat-icon>
+                                </button>
+                              </td>
+                            </ng-container>
+                          </tr>
+                          <tr
+                            *ngFor="
+                              let discount of selectedDiscounts;
+                              let i = index
+                            "
+                          >
+                            <td>{{ discount.name }}</td>
+                            <td>{{ discount.code }}</td>
+                            <td>{{ discount.value }}</td>
+                            <td class="badges">
+                              <span [class]="discount.type">
+                                {{ discount.type }}
+                              </span>
+                            </td>
+                            <td *ngIf="operation!='view'">
+                              <button
+                                type="button"
+                                mat-icon-button
+                                color="warn"
+                                (click)="deleteDiscounts(i, 'SS')"
+                              >
+                                <mat-icon>delete</mat-icon>
+                              </button>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+
+                    <div class="subHeading">
+                      <h5>Variants</h5>
+                      <button *ngIf="operation!='view'"
+                        type="button"
+                        (click)="addVariant()"
+                        mat-stroked-button
+                        color="primary"
+                      >
+                        Add Variant
+                      </button>
+                    </div>
+                    <div class="coupons variants section">
+                      <table>
+                        <thead>
+                          <tr>
+                            <th>Name</th>
+                            <th>Duration(in Hrs)</th>
+                            <th>Acceptance Charge</th>
+                            <th>Price</th>
+                            <th *ngIf="operation!='view'">Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <ng-container formArrayName="variants">
+                            <tr *ngFor="let service of getControls(); let i = index">
+                              <ng-container [formGroupName]="i">
+                                <td>
+                                  <mat-form-field>
+                                    <input
+                                    type="text"
+                                    [disabled]="operation=='view'"
+                                    formControlName="name"
+                                    required
+                                    matInput
+                                    />
+                                </mat-form-field>
+                                </td>
+                                <td>
+                                  <mat-form-field>
+                                    <mat-select
+                                      placeholder="Select Duration"
+                                      formControlName="jobDuration"
+                                      [disabled]="operation=='view'"
+                                      required
+                                    >
+                                      <mat-option value="2">2</mat-option>
+                                      <mat-option value="4">4</mat-option>
+                                      <mat-option value="6">6</mat-option>
+                                      <mat-option value="8">8</mat-option>
+                                      <mat-option value="10">10</mat-option>
+                                      <mat-option value="12">12</mat-option>
+                                      <mat-option value="14">14</mat-option>
+                                    </mat-select>
+                                  </mat-form-field>                                  
+                                </td>
+                                <td>
+                                  <mat-form-field>
+                                    <input
+                                      type="number"
+                                      [disabled]="operation=='view'"
+                                      formControlName="jobAcceptanceCharge"
+                                      required
+                                      matInput
+                                    />
+                                  </mat-form-field>
+                                </td>
+                                <td>
+                                  <mat-form-field>
+                                    <input
+                                      type="number"
+                                      [disabled]="operation=='view'"
+                                      formControlName="price"
+                                      required
+                                      matInput
+                                    />
+                                  </mat-form-field>
+                                </td>
+                                <td *ngIf="operation!='view'">
+                                  <button
+                                    type="button"
+                                    (click)="removeVariant(i)"
+                                    mat-icon-button
+                                    color="warn"
+                                  >
+                                    <mat-icon>delete</mat-icon>
+                                  </button>
+                                </td>
+                              </ng-container>
+                            </tr>
+                          </ng-container>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </mat-tab>
+              </mat-tab-group>
+            </div>
+            <div class="actions" *ngIf="operation!='view'">
+              <button
+                color="primary"
+                type="button"
+                (click)="operation=='add' ? cancelNewAdd() : viewService()"
+                mat-stroked-button
+              >
+                Cancel
+              </button>
+              <button color="primary" type="submit" mat-flat-button>
+                Submit
+              </button>
+            </div>
+            <div class="actions" *ngIf="operation=='view'">
+              <button mat-flat-button color="primary" (click)="editService()">Edit</button>
+            </div>
+          </form>
+          <img src="assets/notFound.jpg" alt="Please select a service to continue." *ngIf="!operation">
+        </div>
+      </div>
+    </mat-tab>
+    <mat-tab label="Taxes">
+      <app-taxes></app-taxes>
+    </mat-tab>
+    <mat-tab label="Coupons">
+      <app-coupons></app-coupons>
+    </mat-tab>
+  </mat-tab-group>
+</div>

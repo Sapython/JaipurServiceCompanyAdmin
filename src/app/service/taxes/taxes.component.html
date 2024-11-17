@@ -1,0 +1,48 @@
+<section>
+  <div class="searchBar">
+    <div class="searchField">
+      <i class="ri-search-line"></i>
+      <input type="search" [(ngModel)]="searchTax" (input)="onSearch()" />
+    </div>
+    <button mat-stroked-button color="primary" (click)="addTax()">
+      <i class="ri-add-fill"></i>Add Tax
+    </button>
+  </div>
+  <div class="taxes">
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Amount</th>
+          <th>Type</th>
+          <th>Created On</th>
+          <th>Last Updated</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let tax of filteredTax">
+          <td>{{ tax.name | titlecase }}</td>
+          <td>{{ tax.rate }}</td>
+          <td>{{ tax.type | titlecase }}</td>
+          <td>{{ tax.createdOn.toDate() | date : "short" }}</td>
+          <td>{{ tax.lastUpdated.toDate() | date : "short" }}</td>
+          <td>
+            <div class="actions">
+              <button
+                mat-icon-button
+                color="primary"
+                (click)="openEditDialog(tax)"
+              >
+                <i class="ri-edit-line"></i>
+              </button>
+              <button mat-icon-button color="primary" (click)="deleteTax(tax)">
+                <i class="ri-delete-bin-line"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>

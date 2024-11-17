@@ -1,0 +1,87 @@
+<section>
+	<div class="selectors">
+		<h3>Day Wise Report</h3>
+		<!-- <button mat-flat-button color="primary" (click)="range.valueChanges"><mat-icon>refresh</mat-icon>Refresh</button> -->
+		<button mat-flat-button color="primary" (click)="downloadExcel()"><mat-icon>download</mat-icon>Download</button>
+		<mat-form-field appearance="outline">
+			<mat-label>Enter a date range</mat-label>
+			<mat-date-range-input [formGroup]="range" [rangePicker]="picker">
+			  <input matStartDate formControlName="start" placeholder="Start date">
+			  <input matEndDate formControlName="end" placeholder="End date">
+			</mat-date-range-input>
+			<mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+			<mat-date-range-picker #picker></mat-date-range-picker>
+		  
+			<mat-error *ngIf="range.controls['start'].hasError('matStartDateInvalid')">Invalid start date</mat-error>
+			<mat-error *ngIf="range.controls['end'].hasError('matEndDateInvalid')">Invalid end date</mat-error>
+		</mat-form-field>		  
+	</div>
+	<div class="tableContainer">
+		<table id="reportTable">
+			<thead>
+				<tr>
+					<th>Id</th>
+					<th>Category</th>
+					<th>Sub-Category</th>
+					<th>User</th>
+					<th>Booking Time</th>
+					<th>Slot Date</th>
+					<th>Slot Time</th>
+					<th>Stage</th>
+					<th>Services</th>
+					<th>Job Time</th>
+					<th>Billing - Discount</th>
+					<th>Billing - Grand Total</th>
+					<th>Billing - Sub Total</th>
+					<th>Billing - Tax</th>
+					<th>Billing - Job Acceptance</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr *ngFor="let booking of this.allBookings">
+					<td class="noWrap">{{booking.id}}</td>
+					<td class="noWrap">{{booking.mainCategory.name || 'N/A'}}</td>
+					<td class="noWrap">{{booking.subCategory.name || 'N/A'}}</td>
+					<td class="noWrap">{{booking.currentUser.name || 'N/A'}}</td>
+					<td class="noWrap">{{booking.createdAt.toDate() | date:'short' || 'N/A'}}</td>
+					<td class="noWrap">{{booking.timeSlot?.date?.toDate() | date:'shortDate' || 'N/A'}}</td>
+					<td class="noWrap">{{booking.timeSlot?.time?.toDate() | date:'shortTime' || 'N/A'}}</td>
+					<td class="noWrap">{{booking.stage || 'N/A'}}</td>
+					<td class="noWrap">
+						<ol>
+							<li *ngFor="let service of booking.services">
+								<strong>Service: {{(service.name) || 'N/A'}}</strong>
+								<ol>
+									<li *ngFor="let variant of service.variants">Name:{{(variant.name) || 'N/A'}} Price:{{variant.price || 'N/A'}} Qty:{{variant.quantity || 'N/A'}} JA:{{variant.jobAcceptanceCharge || 'N/A'}} JD:{{variant.jobDuration || 'N/A'}}</li>
+								</ol>
+							</li>
+						</ol>
+					</td>
+					<td class="noWrap">
+						{{(booking.billing.totalJobTime | currency:'INR') || 'N/A'}}
+					</td>
+					<td class="noWrap">
+						{{(booking.billing.discount | currency:'INR')  || 'N/A'}}
+					</td>
+					<td class="noWrap">
+						{{(booking.billing.grandTotal | currency:'INR') || 'N/A'}}
+					</td>
+					<td class="noWrap">
+						{{(booking.billing.subTotal | currency:'INR') || 'N/A'}}
+					</td>
+					<td class="noWrap">
+						{{(booking.billing.tax | currency:'INR') || 'N/A'}}
+					</td>
+					<td class="noWrap">
+						{{(booking.billing.totalJobAcceptanceCharge | currency:'INR') || 'N/A'}}
+					</td>
+				</tr>
+				<tr *ngIf="this.allBookings.length ==0">
+					<td colspan="15" class="noBookings">
+						No Bookings Found
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+</section>

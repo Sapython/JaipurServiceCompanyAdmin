@@ -1,0 +1,12 @@
+<section>
+	<div class="reportCard" *ngFor="let report of reports">
+		<div class="row">
+			<mat-icon>{{report.icon}}</mat-icon>
+			<div class="detail">
+				<p class="title">{{report.name}}</p>
+				<p class="description">{{report.description}}</p>
+			</div>
+		</div>
+		<button mat-flat-button color="primary" [routerLink]="report.route">See Report</button>
+	</div>
+</section>

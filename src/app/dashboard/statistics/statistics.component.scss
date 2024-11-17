@@ -1,0 +1,75 @@
+:host{
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap:20px;
+    .three{
+        grid-template-columns: repeat(3, 1fr);
+    }
+    .four{
+        grid-template-columns: repeat(4, 1fr);
+        .stat:nth-child(1){
+            // available agents
+            border-radius: 16px;
+            border: 2px solid #FFF;
+            background: linear-gradient(93deg, #FFF 35.37%, #FFE8E8 84.38%);
+        }
+        .stat:nth-child(2){
+            // pending bookings
+            border-radius: 16px;
+            border: 2px solid #FFF;
+            background: linear-gradient(93deg, #FFF 35.37%, #EEECFF 84.38%);
+        }
+        .stat:nth-child(3){
+            // rejected bookings
+            border-radius: 16px;
+            border: 2px solid #FFF;
+            background: linear-gradient(93deg, #FFF 35.37%, #FEE9DE 84.38%);
+        }
+        .stat:nth-child(4){
+            // in progress bookings
+            border-radius: 16px;
+            border: 2px solid #FFF;
+            background: linear-gradient(93deg, #FFF 35.37%, #DDFFF7 84.38%);
+        }
+    }
+    .stats{
+        display: grid;
+        width: 100%;
+        gap:20px;
+        .stat{
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 16px;
+            border: 2px solid #FFF;
+            background: linear-gradient(93deg, #FFF 35.37%, #FFF3DA 84.38%);
+            padding: 10px 20px;
+            img{
+                width: 50px;
+                height: 50px;
+            }
+            .detail{
+                display: flex;
+                flex-direction: column;
+                align-items: flex-end;
+                .title{
+                    color: var(--Button, #145889);
+                    font-family: Inter;
+                    font-size: 20px;
+                    font-style: normal;
+                    font-weight: 500;
+                    line-height: 150%; /* 36px */
+                }
+                .value{
+                    color: #6942EB;
+                    font-family: Inter;
+                    font-size: 37px;
+                    font-style: normal;
+                    font-weight: 500;
+                    line-height: 150%; /* 75px */
+                }
+            }
+        }
+    }
+}

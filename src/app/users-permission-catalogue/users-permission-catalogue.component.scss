@@ -1,0 +1,41 @@
+.header {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+
+  button {
+    border: 1px solid #145889;
+    background: transparent;
+    border-radius: 20px;
+    padding: 2px 10px;
+    justify-content: center;
+    align-items: center;
+    display: flex;
+    color: #145889;
+
+    mat-icon {
+      margin-left: 15px;
+      color: #145889;
+    }
+  }
+}
+
+.content {
+  padding: 20px;
+
+  .section {
+    margin-bottom: 12px;
+    p {
+      color: var(--Button, #145889);
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .users-list {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 25px 80px;
+    }
+  }
+}
